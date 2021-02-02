@@ -5,20 +5,26 @@ namespace seaBattle
 {
     public class PlayingField
     {
-        private readonly Ship[] _ships = new Ship[10]; // массив кораблей
-        private readonly char[,] _field = new char[10, 10]; // игровое поле
-
+        /// <summary>массив кораблей</summary>
+        private readonly Ship[] _ships = new Ship[10];
+        /// <summary>игровое поле</summary>
+        private readonly char[,] _field;
+        /// <summary>конструктор</summary>
+        public PlayingField(int n, int m)
+        {
+            _field = new char[n, m];
+        }
         public void PrintField() // вывод игрового поля
         {
             for (var i = 0; i < 10; i++)
             {
                 for (var j = 0; j < 10; j++)
-                    Console.Write($"{_field[i, j]} \t");
+                    Console.Write($"{_field[i, j]}\t");
                 Console.WriteLine();
             }
         }
-
-        public void StartRandomField(Random random) // случайное распределение кораблей
+        /// <summary>случайное распределение кораблей</summary>
+        public void StartRandomField(Random random)
         {
             var field = new char[12, 12]; // создание увеличенного поля для удобства распределения кораблей
 
@@ -44,8 +50,8 @@ namespace seaBattle
             for (var j = 0; j < 10; ++j)
                 _field[i, j] = field[i + 1, j + 1]; 
         }
-
-        private static void ShipPlacement(char[,] field, Ship s, Random random) // случайное распределение одного корабля
+        /// <summary>случайное распределение одного корабля</summary>
+        private static void ShipPlacement(char[,] field, Ship s, Random random)
         {
             var shipPlaces = new List<ShipPlace>(); // список возможных мест для размещения корабля
 
@@ -99,11 +105,11 @@ namespace seaBattle
                 ++j)
                 field[i + 1, j + 1] = '*';
 
+            if (shipPlaces.Count == 0) throw new Exception("Для корабля не нашлось подходящего места");
             shipPlaces.Clear();
         }
-        
-
-        public void RandomShot(Random random) // случайный выстрел
+        /// <summary>случайный выстрел</summary>
+        public void RandomShot(Random random)
         {
             var pointers = new List<Pointer>();
             for (var i = 0; i < 10; ++i)
@@ -114,28 +120,30 @@ namespace seaBattle
             _field[pointer.Y, pointer.X] = 'x';
             pointers.Clear();
         }
-        private bool DeathShip(Pointer p) // проверка на убитого коробля в точке
+        /// <summary>проверка на убитого коробля в точке</summary>
+        private bool DeathShip(int x, int y)
         {
+            if (x < 0 || y < 0) return false;
             foreach (var t in _ships)
             {
-                if (p.X == t.ShipPlace.FirstPointer.X &&  // проверка по вертикали
-                    p.X == t.ShipPlace.LastPointer.X &&
-                    p.Y >= t.ShipPlace.FirstPointer.Y &&
-                    p.Y <= t.ShipPlace.LastPointer.Y)
+                if (x == t.ShipPlace.FirstPointer.X &&  // проверка по вертикали
+                    x == t.ShipPlace.LastPointer.X &&
+                    y >= t.ShipPlace.FirstPointer.Y &&
+                    y <= t.ShipPlace.LastPointer.Y)
                 {
                     for (var j = 0;
-                        j < t.Decks && _field[t.ShipPlace.FirstPointer.Y + j, p.X] == 'x';
+                        j < t.Decks && _field[t.ShipPlace.FirstPointer.Y + j, x] == 'x';
                         ++j)
                         if (j == t.Decks - 1)
                             return true;
                 }
 
-                if (p.Y != t.ShipPlace.FirstPointer.Y ||  // проверка по горизонтали
-                    p.Y != t.ShipPlace.LastPointer.Y ||
-                    p.X < t.ShipPlace.FirstPointer.X ||
-                    p.X > t.ShipPlace.LastPointer.X) continue;
+                if (y != t.ShipPlace.FirstPointer.Y ||  // проверка по горизонтали
+                    y != t.ShipPlace.LastPointer.Y ||
+                    x < t.ShipPlace.FirstPointer.X ||
+                    x > t.ShipPlace.LastPointer.X) continue;
                 for (var j = 0;
-                    j < t.Decks && _field[p.Y, t.ShipPlace.FirstPointer.X + j] == 'x';
+                    j < t.Decks && _field[y, t.ShipPlace.FirstPointer.X + j] == 'x';
                     ++j)
                     if (j == t.Decks - 1)
                         return true;
@@ -143,11 +151,13 @@ namespace seaBattle
 
             return false;
         }
-        
-        private Pointer _prevHit;  // две точки для запоминания предыдущих выстрелов
+        /// <summary>две точки для запоминания предыдущих выстрелов</summary>
+        private Pointer _prevHit;
         private Pointer _prevHit2; 
-        private char _direction = ' '; // направление многопалубного корабля 
-        public void SmartRandomShot(Random random) // случайная стрельба с «добиванием» кораблей
+        /// <summary>направление многопалубного корабля </summary>
+        private char _direction = ' ';
+        /// <summary>случайная стрельба с «добиванием» кораблей</summary>
+        public void SmartRandomShot(Random random)
         {
             if (_prevHit == null && _prevHit2 == null) // случайный выстрел
             {
@@ -155,10 +165,14 @@ namespace seaBattle
                 for (var i = 0; i < 10; ++i)
                 for (var j = 0; j < 10; ++j)
                     if (_field[i, j] != 'x'
-                       && !DeathShip(new Pointer(j - 1, i))
-                            && !DeathShip(new Pointer(j + 1, i))
-                               && !DeathShip(new Pointer(j, i - 1))
-                                    && !DeathShip(new Pointer(j, i + 1)))
+                       && !DeathShip(j - 1, i) 
+                       && !DeathShip(j + 1, i) 
+                       && !DeathShip(j, i - 1) 
+                       && !DeathShip(j, i + 1)
+                       && !DeathShip(j - 1, i - 1)
+                       && !DeathShip(j + 1, i + 1)
+                       && !DeathShip(j + 1, i - 1)
+                       && !DeathShip(j - 1, i + 1))
                         pointers.Add(new Pointer(j, i));
                 var pointer = pointers[random.Next(0, pointers.Count - 1)];
                 if (_field[pointer.Y, pointer.X] == '*')
@@ -177,7 +191,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y - 1, _prevHit.X] = 'x';
-                                    if (DeathShip(_prevHit))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         return;
@@ -200,7 +214,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y, _prevHit.X + 1] = 'x';
-                                    if (DeathShip(_prevHit))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         return;
@@ -223,7 +237,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y + 1, _prevHit.X] = 'x';
-                                    if (DeathShip(_prevHit))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         return;
@@ -246,7 +260,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y, _prevHit.X - 1] = 'x';
-                                    if (DeathShip(_prevHit))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         return;
@@ -281,7 +295,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y, _prevHit.X + 1] = 'x';
-                                    if (DeathShip(new Pointer(_prevHit.X, _prevHit.Y)))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         _prevHit2 = null;
@@ -316,7 +330,7 @@ namespace seaBattle
                                 case '*':
                                 {
                                     _field[_prevHit.Y - 1, _prevHit.X] = 'x';
-                                    if (DeathShip(new Pointer(_prevHit.X, _prevHit.Y)))
+                                    if (DeathShip(_prevHit.X, _prevHit.Y))
                                     {
                                         _prevHit = null;
                                         _prevHit2 = null;
@@ -346,7 +360,7 @@ namespace seaBattle
                     case 'y': // добивание нижней части корабля
                     {
                         _field[_prevHit2.Y + 1, _prevHit2.X] = 'x';
-                        if (DeathShip(new Pointer(_prevHit2.X, _prevHit2.Y)))
+                        if (DeathShip(_prevHit2.X, _prevHit2.Y))
                         {
                             _prevHit2 = null;
                             _direction = ' ';
@@ -358,7 +372,7 @@ namespace seaBattle
                     case 'x': // добивание левой части корабля
                     {
                         _field[_prevHit2.Y, _prevHit2.X - 1] = 'x';
-                        if (DeathShip(new Pointer(_prevHit2.X, _prevHit2.Y)))
+                        if (DeathShip(_prevHit2.X, _prevHit2.Y))
                         {
                             _prevHit2 = null;
                             _direction = ' ';
@@ -369,8 +383,8 @@ namespace seaBattle
                     }
                 }
         }
-
-        public bool Live() // проверка кораблей на живучесть 
+        /// <summary>проверка кораблей на живучесть</summary>
+        public bool Live()
         {
             for (var i = 0; i < 10; ++i)
             for (var j = 0; j < 10; ++j)

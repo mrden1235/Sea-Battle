@@ -12,8 +12,8 @@ namespace seaBattle
             int v1 = 0, v11 = 0, v12 = 0;
             for (var i = 0; i < 1000; ++i)
             {
-                var pf1 = new PlayingField();
-                var pf2 = new PlayingField();
+                var pf1 = new PlayingField(10, 10);
+                var pf2 = new PlayingField(10, 10);
                 pf1.StartRandomField(r);
                 pf2.StartRandomField(r);
                 while (pf1.Live() && pf2.Live())
@@ -34,8 +34,8 @@ namespace seaBattle
             int v2 = 0, v21 = 0, v22 = 0;
             for (var i = 0; i < 1000; ++i)
             {
-                var pf1 = new PlayingField();
-                var pf2 = new PlayingField();
+                var pf1 = new PlayingField(10, 10);
+                var pf2 = new PlayingField(10, 10);
                 pf1.StartRandomField(r);
                 pf2.StartRandomField(r);
                 while (pf1.Live() && pf2.Live())
@@ -55,8 +55,8 @@ namespace seaBattle
                 int v3 = 0, v31 = 0, v32 = 0;
                 for (var i = 0; i < 1000; ++i)
                 {
-                    var pf1 = new PlayingField();
-                    var pf2 = new PlayingField();
+                    var pf1 = new PlayingField(10, 10);
+                    var pf2 = new PlayingField(10, 10);
                     pf1.StartRandomField(r);
                     pf2.StartRandomField(r);
                     while (pf1.Live() && pf2.Live())
