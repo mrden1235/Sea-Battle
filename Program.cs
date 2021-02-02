@@ -1,10 +1,13 @@
 using System;
+using System.Configuration;
+
 namespace seaBattle
 {
    public static class Program
     {
         public static void Main(string[] args)
         {
+            
             Console.WriteLine("Чемпионаты по 1000 игр");
             Console.WriteLine();
             var r = new Random();

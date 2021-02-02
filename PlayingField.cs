@@ -14,12 +14,13 @@ namespace seaBattle
         {
             _field = new char[n, m];
         }
-        public void PrintField() // вывод игрового поля
+        /// <summary> вывод игрового поля</summary>
+        public void PrintField()
         {
             for (var i = 0; i < 10; i++)
             {
                 for (var j = 0; j < 10; j++)
-                    Console.Write($"{_field[i, j]}\t");
+                    Console.Write($"{_field[i, j]} \t");
                 Console.WriteLine();
             }
         }
