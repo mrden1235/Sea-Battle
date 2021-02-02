@@ -2,8 +2,7 @@ using System;
 namespace seaBattle
 {
    public static class Program
-    { 
-       
+    {
         public static void Main(string[] args)
         {
             Console.WriteLine("Чемпионаты по 1000 игр");

@@ -1,30 +1,15 @@
-﻿namespace seaBattle
+﻿using System;
+
+namespace seaBattle
 {
     public class Ship
     {
-        private ShipPlace _shipPlace; // место размещения коробля на поле
-        private int _decks; // количество палуб
-        
-        //гетеры и сетеры
-         public Ship(int d)
-         { 
-             _decks = d; 
-         }
-         
-         public ShipPlace GetShipPlace() {
-            return _shipPlace;
-        }
-
-        public void SetShipPlace(ShipPlace sp) {
-            _shipPlace = sp;
-        }
-        
-        public int GetDecks() {
-            return _decks;
-        }
-        
-        public void SetDecks(int d) {
-            _decks = d;
+        public ShipPlace ShipPlace { get; set; } // место размещения коробля на поле
+        public int Decks { get; }
+        public Ship(int d)
+        {
+            if (d < 1 || d > 4) throw new ArgumentException();
+            Decks = d;
         }
     }
 }

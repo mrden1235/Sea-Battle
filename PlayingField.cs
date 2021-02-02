@@ -5,30 +5,9 @@ namespace seaBattle
 {
     public class PlayingField
     {
-        private Ship[] _ships = new Ship[10]; // массив кораблей
-        private char[,] _field = new char[10, 10]; // игровое поле
-        
-        //гетеры и сетеры
-        public Ship[] GetShips()
-        {
-            return _ships;
-        }
+        private readonly Ship[] _ships = new Ship[10]; // массив кораблей
+        private readonly char[,] _field = new char[10, 10]; // игровое поле
 
-        public void SetShips(Ship[] s)
-        {
-            _ships = s;
-        }
-
-        public char[,] GetField()
-        {
-            return _field;
-        }
-
-        public void SetField(char[,] f)
-        {
-            _field = f;
-        }
-        
         public void PrintField() // вывод игрового поля
         {
             for (var i = 0; i < 10; i++)
@@ -73,10 +52,10 @@ namespace seaBattle
             for (var i = 0; i < 10; ++i)
             for (var j = 0; j < 10; ++j)
             {
-                for (var y = i; y < i + 3 && j < 11 - s.GetDecks(); ++y) // нахождение возможных мест по вертикали
+                for (var y = i; y < i + 3 && j < 11 - s.Decks; ++y) // нахождение возможных мест по вертикали
                 {
                     var flag = false;
-                    for (var x = j; x < j + s.GetDecks() + 2; ++x)
+                    for (var x = j; x < j + s.Decks + 2; ++x)
                     {
                         if (field[y, x] == '*')
                         {
@@ -84,17 +63,17 @@ namespace seaBattle
                             break;
                         }
 
-                        if (y != i + 2 || x != j + s.GetDecks() + 1) continue;
-                        shipPlaces.Add(new ShipPlace(new Pointer(j, i), new Pointer(j + s.GetDecks() - 1, i)));
+                        if (y != i + 2 || x != j + s.Decks + 1) continue;
+                        shipPlaces.Add(new ShipPlace(new Pointer(j, i), new Pointer(j + s.Decks - 1, i)));
                     }
 
                     if (flag) break;
                 }
 
-                for (var x = i; x < i + 3 && j < 11 - s.GetDecks(); ++x)// нахождение возможных мест по горизонтали
+                for (var x = i; x < i + 3 && j < 11 - s.Decks; ++x)// нахождение возможных мест по горизонтали
                 {
                     var flag = false;
-                    for (var y = j; y < j + s.GetDecks() + 2; ++y)
+                    for (var y = j; y < j + s.Decks + 2; ++y)
                     {
                         if (field[y, x] == '*')
                         {
@@ -102,21 +81,21 @@ namespace seaBattle
                             break;
                         }
 
-                        if (x != i + 2 || y != j + s.GetDecks() + 1) continue;
-                        shipPlaces.Add(new ShipPlace(new Pointer(i, j), new Pointer(i, j + s.GetDecks() - 1)));
+                        if (x != i + 2 || y != j + s.Decks + 1) continue;
+                        shipPlaces.Add(new ShipPlace(new Pointer(i, j), new Pointer(i, j + s.Decks - 1)));
                     }
 
                     if (flag) break;
                 }
             }
 
-            s.SetShipPlace(shipPlaces[random.Next(0, shipPlaces.Count - 1)]); // генерация случайного места для коробля
+            s.ShipPlace = shipPlaces[random.Next(0, shipPlaces.Count - 1)]; // генерация случайного места для коробля
 
-            for (var i = s.GetShipPlace().GetFirstPointer().GetY(); // размещение корабля на поле
-                i < s.GetShipPlace().GetLastPointer().GetY() + 1;
+            for (var i = s.ShipPlace.FirstPointer.Y; // размещение корабля на поле
+                i < s.ShipPlace.LastPointer.Y + 1;
                 ++i)
-            for (var j = s.GetShipPlace().GetFirstPointer().GetX();
-                j < s.GetShipPlace().GetLastPointer().GetX() + 1;
+            for (var j = s.ShipPlace.FirstPointer.X;
+                j < s.ShipPlace.LastPointer.X + 1;
                 ++j)
                 field[i + 1, j + 1] = '*';
 
@@ -132,33 +111,33 @@ namespace seaBattle
                 if (_field[i, j] != 'x')
                     pointers.Add(new Pointer(j, i));
             var pointer = pointers[random.Next(0, pointers.Count - 1)];
-            _field[pointer.GetY(), pointer.GetX()] = 'x';
+            _field[pointer.Y, pointer.X] = 'x';
             pointers.Clear();
         }
         private bool DeathShip(Pointer p) // проверка на убитого коробля в точке
         {
             foreach (var t in _ships)
             {
-                if (p.GetX() == t.GetShipPlace().GetFirstPointer().GetX() &&  // проверка по вертикали
-                    p.GetX() == t.GetShipPlace().GetLastPointer().GetX() &&
-                    p.GetY() >= t.GetShipPlace().GetFirstPointer().GetY() &&
-                    p.GetY() <= t.GetShipPlace().GetLastPointer().GetY())
+                if (p.X == t.ShipPlace.FirstPointer.X &&  // проверка по вертикали
+                    p.X == t.ShipPlace.LastPointer.X &&
+                    p.Y >= t.ShipPlace.FirstPointer.Y &&
+                    p.Y <= t.ShipPlace.LastPointer.Y)
                 {
                     for (var j = 0;
-                        j < t.GetDecks() && _field[t.GetShipPlace().GetFirstPointer().GetY() + j, p.GetX()] == 'x';
+                        j < t.Decks && _field[t.ShipPlace.FirstPointer.Y + j, p.X] == 'x';
                         ++j)
-                        if (j == t.GetDecks() - 1)
+                        if (j == t.Decks - 1)
                             return true;
                 }
 
-                if (p.GetY() != t.GetShipPlace().GetFirstPointer().GetY() ||  // проверка по горизонтали
-                    p.GetY() != t.GetShipPlace().GetLastPointer().GetY() ||
-                    p.GetX() < t.GetShipPlace().GetFirstPointer().GetX() ||
-                    p.GetX() > t.GetShipPlace().GetLastPointer().GetX()) continue;
+                if (p.Y != t.ShipPlace.FirstPointer.Y ||  // проверка по горизонтали
+                    p.Y != t.ShipPlace.LastPointer.Y ||
+                    p.X < t.ShipPlace.FirstPointer.X ||
+                    p.X > t.ShipPlace.LastPointer.X) continue;
                 for (var j = 0;
-                    j < t.GetDecks() && _field[p.GetY(), t.GetShipPlace().GetFirstPointer().GetX() + j] == 'x';
+                    j < t.Decks && _field[p.Y, t.ShipPlace.FirstPointer.X + j] == 'x';
                     ++j)
-                    if (j == t.GetDecks() - 1)
+                    if (j == t.Decks - 1)
                         return true;
             }
 
@@ -182,100 +161,109 @@ namespace seaBattle
                                     && !DeathShip(new Pointer(j, i + 1)))
                         pointers.Add(new Pointer(j, i));
                 var pointer = pointers[random.Next(0, pointers.Count - 1)];
-                if (_field[pointer.GetY(), pointer.GetX()] == '*')
-                    _prevHit = new Pointer(pointer.GetX(), pointer.GetY());
-                _field[pointer.GetY(), pointer.GetX()] = 'x';
+                if (_field[pointer.Y, pointer.X] == '*')
+                    _prevHit = new Pointer(pointer.X, pointer.Y);
+                _field[pointer.Y, pointer.X] = 'x';
                 pointers.Clear();
             }
             else
                 switch (_direction)
                 {
                     case ' ' when _prevHit != null:
-                        if (_prevHit.GetY() > 0) // выстрел над перым попадением
-                            if (_field[_prevHit.GetY() - 1, _prevHit.GetX()] == '*')
+                        if (_prevHit.Y > 0)
+                            switch (_field[_prevHit.Y - 1, _prevHit.X])
                             {
-                                _field[_prevHit.GetY() - 1, _prevHit.GetX()] = 'x';
-                                if (DeathShip(_prevHit))
+                                // выстрел над перым попадением
+                                case '*':
                                 {
+                                    _field[_prevHit.Y - 1, _prevHit.X] = 'x';
+                                    if (DeathShip(_prevHit))
+                                    {
+                                        _prevHit = null;
+                                        return;
+                                    }
+
+                                    _prevHit2 = new Pointer(_prevHit);
+                                    _direction = 'y';
+                                    --_prevHit.Y;
+                                    return;
+                                }
+                                case '.':
+                                    _field[_prevHit.Y - 1, _prevHit.X] = 'x';
+                                    return;
+                            }
+
+                        if (_prevHit.X < 9)
+                            switch (_field[_prevHit.Y, _prevHit.X + 1])
+                            {
+                                // выстрел справа от первого попадения
+                                case '*':
+                                {
+                                    _field[_prevHit.Y, _prevHit.X + 1] = 'x';
+                                    if (DeathShip(_prevHit))
+                                    {
+                                        _prevHit = null;
+                                        return;
+                                    }
+
+                                    _prevHit2 = new Pointer(_prevHit);
+                                    _direction = 'x';
+                                    ++_prevHit.X;
+                                    return;
+                                }
+                                case '.':
+                                    _field[_prevHit.Y, _prevHit.X + 1] = 'x';
+                                    return;
+                            }
+
+                        if (_prevHit.Y < 9)
+                            switch (_field[_prevHit.Y + 1, _prevHit.X])
+                            {
+                                // выстрел под первым попадением
+                                case '*':
+                                {
+                                    _field[_prevHit.Y + 1, _prevHit.X] = 'x';
+                                    if (DeathShip(_prevHit))
+                                    {
+                                        _prevHit = null;
+                                        return;
+                                    }
+
+                                    _direction = 'y';
+                                    _prevHit2 = new Pointer(_prevHit.X, _prevHit.Y + 1);
                                     _prevHit = null;
                                     return;
                                 }
-
-                                _prevHit2 = new Pointer(_prevHit);
-                                _direction = 'y';
-                                _prevHit.SetY(_prevHit.GetY() - 1);
-                                return;
-                            }
-                            else if (_field[_prevHit.GetY() - 1, _prevHit.GetX()] == '.')
-                            {
-                                _field[_prevHit.GetY() - 1, _prevHit.GetX()] = 'x';
-                                return;
-                            }
-
-                        if (_prevHit.GetX() < 9) // выстрел справа от первого попадения
-                            if (_field[_prevHit.GetY(), _prevHit.GetX() + 1] == '*')
-                            {
-                                _field[_prevHit.GetY(), _prevHit.GetX() + 1] = 'x';
-                                if (DeathShip(_prevHit))
-                                {
-                                    _prevHit = null;
+                                case '.':
+                                    _field[_prevHit.Y + 1, _prevHit.X] = 'x';
                                     return;
-                                }
-
-                                _prevHit2 = new Pointer(_prevHit);
-                                _direction = 'x';
-                                _prevHit.SetX(_prevHit.GetX() + 1);
-                                return;
-                            }
-                            else if (_field[_prevHit.GetY(), _prevHit.GetX() + 1] == '.')
-                            {
-                                _field[_prevHit.GetY(), _prevHit.GetX() + 1] = 'x';
-                                return;
                             }
 
-                        if (_prevHit.GetY() < 9) // выстрел под первым попадением
-                            if (_field[_prevHit.GetY() + 1, _prevHit.GetX()] == '*')
-                            {
-                                _field[_prevHit.GetY() + 1, _prevHit.GetX()] = 'x';
-                                if (DeathShip(_prevHit))
-                                {
-                                    _prevHit = null;
-                                    return;
-                                }
-
-                                _direction = 'y';
-                                _prevHit2 = new Pointer(_prevHit.GetX(), _prevHit.GetY() + 1);
-                                _prevHit = null;
-                                return;
-                            }
-                            else if (_field[_prevHit.GetY() + 1, _prevHit.GetX()] == '.')
-                            {
-                                _field[_prevHit.GetY() + 1, _prevHit.GetX()] = 'x';
-                                return;
-                            }
-
-                        if (_prevHit.GetX() > 0) // выстрел слева от первого попадения
+                        if (_prevHit.X > 0) // выстрел слева от первого попадения
                         {
-                            if (_field[_prevHit.GetY(), _prevHit.GetX() - 1] == '*')
+                            switch (_field[_prevHit.Y, _prevHit.X - 1])
                             {
-
-                                _field[_prevHit.GetY(), _prevHit.GetX() - 1] = 'x';
-                                if (DeathShip(_prevHit))
+                                case '*':
                                 {
-                                    _prevHit = null;
-                                    return;
-                                }
+                                    _field[_prevHit.Y, _prevHit.X - 1] = 'x';
+                                    if (DeathShip(_prevHit))
+                                    {
+                                        _prevHit = null;
+                                        return;
+                                    }
 
-                                _direction = 'x';
-                                _prevHit2 = new Pointer(_prevHit.GetX() - 1, _prevHit.GetY());
-                                _prevHit = null;
-                            }
-                            else if (_field[_prevHit.GetY(), _prevHit.GetX() - 1] == '.')
-                                _field[_prevHit.GetY(), _prevHit.GetX() - 1] = 'x';
-                            else
-                            {
-                                _prevHit = null;
-                                SmartRandomShot(random);
+                                    _direction = 'x';
+                                    _prevHit2 = new Pointer(_prevHit.X - 1, _prevHit.Y);
+                                    _prevHit = null;
+                                    break;
+                                }
+                                case '.':
+                                    _field[_prevHit.Y, _prevHit.X - 1] = 'x';
+                                    break;
+                                default:
+                                    _prevHit = null;
+                                    SmartRandomShot(random);
+                                    break;
                             }
                         }
                         else
@@ -286,28 +274,31 @@ namespace seaBattle
 
                         break;
                     case 'x' when _prevHit != null: // выстрелы справа от второго попадания
-                        if (_prevHit.GetX() < 9) 
+                        if (_prevHit.X < 9)
                         {
-                            if (_field[_prevHit.GetY(), _prevHit.GetX() + 1] == '*')
+                            switch (_field[_prevHit.Y, _prevHit.X + 1])
                             {
-                                _field[_prevHit.GetY(), _prevHit.GetX() + 1] = 'x';
-                                if (DeathShip(new Pointer(_prevHit.GetX(), _prevHit.GetY())))
+                                case '*':
                                 {
-                                    _prevHit = null;
-                                    _prevHit2 = null;
-                                    _direction = ' ';
+                                    _field[_prevHit.Y, _prevHit.X + 1] = 'x';
+                                    if (DeathShip(new Pointer(_prevHit.X, _prevHit.Y)))
+                                    {
+                                        _prevHit = null;
+                                        _prevHit2 = null;
+                                        _direction = ' ';
+                                    }
+                                    else ++_prevHit.X;
+
+                                    break;
                                 }
-                                else _prevHit.SetX(_prevHit.GetX() + 1);
-                            }
-                            else if (_field[_prevHit.GetY(), _prevHit.GetX() + 1] == '.')
-                            {
-                                _field[_prevHit.GetY(), _prevHit.GetX() + 1] = 'x';
-                                _prevHit = null;
-                            }
-                            else
-                            {
-                                _prevHit = null;
-                                SmartRandomShot(random);
+                                case '.':
+                                    _field[_prevHit.Y, _prevHit.X + 1] = 'x';
+                                    _prevHit = null;
+                                    break;
+                                default:
+                                    _prevHit = null;
+                                    SmartRandomShot(random);
+                                    break;
                             }
                         }
                         else
@@ -318,28 +309,31 @@ namespace seaBattle
 
                         break;
                     case 'y' when _prevHit != null: // выстрелы над вторым попадением
-                        if (_prevHit.GetY() > 0)
+                        if (_prevHit.Y > 0)
                         {
-                            if (_field[_prevHit.GetY() - 1, _prevHit.GetX()] == '*')
+                            switch (_field[_prevHit.Y - 1, _prevHit.X])
                             {
-                                _field[_prevHit.GetY() - 1, _prevHit.GetX()] = 'x';
-                                if (DeathShip(new Pointer(_prevHit.GetX(), _prevHit.GetY())))
+                                case '*':
                                 {
-                                    _prevHit = null;
-                                    _prevHit2 = null;
-                                    _direction = ' ';
+                                    _field[_prevHit.Y - 1, _prevHit.X] = 'x';
+                                    if (DeathShip(new Pointer(_prevHit.X, _prevHit.Y)))
+                                    {
+                                        _prevHit = null;
+                                        _prevHit2 = null;
+                                        _direction = ' ';
+                                    }
+                                    else --_prevHit.Y;
+
+                                    break;
                                 }
-                                else _prevHit.SetY(_prevHit.GetY() - 1);
-                            }
-                            else if (_field[_prevHit.GetY() - 1, _prevHit.GetX()] == '.')
-                            {
-                                _field[_prevHit.GetY() - 1, _prevHit.GetX()] = 'x';
-                                _prevHit = null;
-                            }
-                            else
-                            {
-                                _prevHit = null;
-                                SmartRandomShot(random);
+                                case '.':
+                                    _field[_prevHit.Y - 1, _prevHit.X] = 'x';
+                                    _prevHit = null;
+                                    break;
+                                default:
+                                    _prevHit = null;
+                                    SmartRandomShot(random);
+                                    break;
                             }
                         }
                         else
@@ -351,25 +345,25 @@ namespace seaBattle
                         break;
                     case 'y': // добивание нижней части корабля
                     {
-                        _field[_prevHit2.GetY() + 1, _prevHit2.GetX()] = 'x';
-                        if (DeathShip(new Pointer(_prevHit2.GetX(), _prevHit2.GetY())))
+                        _field[_prevHit2.Y + 1, _prevHit2.X] = 'x';
+                        if (DeathShip(new Pointer(_prevHit2.X, _prevHit2.Y)))
                         {
                             _prevHit2 = null;
                             _direction = ' ';
                         }
-                        else _prevHit2.SetY(_prevHit2.GetY() + 1);
+                        else ++_prevHit2.Y;
 
                         break;
                     }
                     case 'x': // добивание левой части корабля
                     {
-                        _field[_prevHit2.GetY(), _prevHit2.GetX() - 1] = 'x';
-                        if (DeathShip(new Pointer(_prevHit2.GetX(), _prevHit2.GetY())))
+                        _field[_prevHit2.Y, _prevHit2.X - 1] = 'x';
+                        if (DeathShip(new Pointer(_prevHit2.X, _prevHit2.Y)))
                         {
                             _prevHit2 = null;
                             _direction = ' ';
                         }
-                        else _prevHit2.SetX(_prevHit2.GetX() - 1);
+                        else --_prevHit2.X;
 
                         break;
                     }
