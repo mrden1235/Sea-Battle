@@ -6,51 +6,48 @@ namespace seaBattle
     public class PlayingField
     {
         /// <summary>массив кораблей</summary>
-        private readonly Ship[] _ships = new Ship[10];
+        private readonly Ship[] _ships;
         /// <summary>игровое поле</summary>
         private readonly char[,] _field;
+
+        private readonly int _n;
+        private readonly int _m;
         /// <summary>конструктор</summary>
-        public PlayingField(int n, int m)
+        public PlayingField(int n, int m, IReadOnlyList<int> s)
         {
+            _n = n;
+            _m = m;
             _field = new char[n, m];
+            _ships = new Ship[s.Count];
+            for (var i = 0; i < s.Count; ++i) _ships[i] = new Ship(s[i]);
         }
         /// <summary> вывод игрового поля</summary>
         public void PrintField()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < _n; i++)
             {
-                for (var j = 0; j < 10; j++)
+                for (var j = 0; j < _m; j++)
                     Console.Write($"{_field[i, j]} \t");
                 Console.WriteLine();
             }
         }
+
         /// <summary>случайное распределение кораблей</summary>
         public void StartRandomField(Random random)
         {
-            var field = new char[12, 12]; // создание увеличенного поля для удобства распределения кораблей
+            var field = new char[_n + 2, _m + 2]; // создание увеличенного поля для удобства распределения кораблей
 
-            for (var i = 0; i < 12; i++) // заполнение поля
-            for (var j = 0; j < 12; j++)
+            for (var i = 0; i < _n + 2; i++) // заполнение поля
+            for (var j = 0; j < _m + 2; j++)
                 field[i, j] = '.';
 
-            _ships[0] = new Ship(4); // создание кораблей
-            _ships[1] = new Ship(3);
-            _ships[2] = new Ship(3);
-            _ships[3] = new Ship(2);
-            _ships[4] = new Ship(2);
-            _ships[5] = new Ship(2);
-            _ships[6] = new Ship(1);
-            _ships[7] = new Ship(1);
-            _ships[8] = new Ship(1);
-            _ships[9] = new Ship(1);
+            foreach (var t in _ships) ShipPlacement(field, t, random); // распределение кораблей
 
-            for (var i = 0; i < 10; ++i) // распределение кораблей
-                ShipPlacement(field, _ships[i], random); 
-
-            for (var i = 0; i < 10; ++i) // запись в игровое поле
-            for (var j = 0; j < 10; ++j)
-                _field[i, j] = field[i + 1, j + 1]; 
+            for (var i = 0; i < _n; ++i) // запись в игровое поле
+            for (var j = 0; j < _m; ++j)
+                _field[i, j] = field[i + 1, j + 1];
         }
+
         /// <summary>случайное распределение одного корабля</summary>
         private static void ShipPlacement(char[,] field, Ship s, Random random)
         {

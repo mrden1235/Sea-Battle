@@ -1,22 +1,23 @@
 using System;
-using System.Configuration;
 
 namespace seaBattle
 {
    public static class Program
-    {
+   {
+       
         public static void Main(string[] args)
         {
-            
-            Console.WriteLine("Чемпионаты по 1000 игр");
+            int[] ships = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
+
+             Console.WriteLine("Чемпионаты по 1000 игр");
             Console.WriteLine();
             var r = new Random();
             Console.WriteLine("Cтратегия 1 против стратегии 1");
             int v1 = 0, v11 = 0, v12 = 0;
             for (var i = 0; i < 1000; ++i)
             {
-                var pf1 = new PlayingField(10, 10);
-                var pf2 = new PlayingField(10, 10);
+                var pf1 = new PlayingField(10, 10, ships);
+                var pf2 = new PlayingField(10, 10, ships);
                 pf1.StartRandomField(r);
                 pf2.StartRandomField(r);
                 while (pf1.Live() && pf2.Live())
@@ -37,8 +38,8 @@ namespace seaBattle
             int v2 = 0, v21 = 0, v22 = 0;
             for (var i = 0; i < 1000; ++i)
             {
-                var pf1 = new PlayingField(10, 10);
-                var pf2 = new PlayingField(10, 10);
+                var pf1 = new PlayingField(10, 10, ships);
+                var pf2 = new PlayingField(10, 10, ships);
                 pf1.StartRandomField(r);
                 pf2.StartRandomField(r);
                 while (pf1.Live() && pf2.Live())
@@ -58,8 +59,8 @@ namespace seaBattle
                 int v3 = 0, v31 = 0, v32 = 0;
                 for (var i = 0; i < 1000; ++i)
                 {
-                    var pf1 = new PlayingField(10, 10);
-                    var pf2 = new PlayingField(10, 10);
+                    var pf1 = new PlayingField(10, 10, ships);
+                    var pf2 = new PlayingField(10, 10, ships);
                     pf1.StartRandomField(r);
                     pf2.StartRandomField(r);
                     while (pf1.Live() && pf2.Live())
