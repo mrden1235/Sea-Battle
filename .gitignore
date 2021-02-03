@@ -1,5 +1,12 @@
 # Common IntelliJ Platform excludes
-
+seaBattle.sln.DotSettings.user
+seaBattle.csproj
+seaBattle.sln
+.git
+.idea
+bin
+obj
+Properties
 # User specific
 **/.idea/**/workspace.xml
 **/.idea/**/tasks.xml
