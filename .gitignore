@@ -7,6 +7,7 @@ seaBattle.sln
 bin
 obj
 Properties
+bin/Debug/seaBattle.exe
 # User specific
 **/.idea/**/workspace.xml
 **/.idea/**/tasks.xml
