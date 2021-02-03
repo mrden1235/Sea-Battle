@@ -9,7 +9,7 @@ namespace seaBattle
         {
             int[] ships = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
 
-             Console.WriteLine("Чемпионаты по 1000 игр");
+            Console.WriteLine("Чемпионаты по 1000 игр");
             Console.WriteLine();
             var r = new Random();
             Console.WriteLine("Cтратегия 1 против стратегии 1");

@@ -4,10 +4,10 @@ namespace seaBattle
 {
     public class Ship
     {
-        /// <summary>количество палуб</summary>
+        /// <summary>Количество палуб.</summary>
         public int Decks { get; }
 
-        /// <summary>место размещения коробля на поле</summary>
+        /// <summary>Место размещения коробля на поле.</summary>
         private ShipPlace _shipPlace;
 
         public ShipPlace ShipPlace
@@ -26,7 +26,7 @@ namespace seaBattle
 
         }
 
-        /// <summary>конструктор</summary>
+        /// <summary>Конструктор.</summary>
         public Ship(int d)
         {
             if (d < 1) throw new ArgumentException();

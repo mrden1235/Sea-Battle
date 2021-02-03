@@ -4,8 +4,9 @@ namespace seaBattle
 {
     public class Pointer
     {
-        /// <summary>коордтнаты</summary>
+        /// <summary>Коордтнаты.</summary>
         private int _x;
+        /// <exception>Выбрасывает исключение при отрицательной координате _x.</exception>
         public int X
         {
             get => _x;
@@ -15,7 +16,7 @@ namespace seaBattle
                 _x = value;
             }
         }
-
+        /// <exception>Выбрасывает исключение при отрицательной координате _y.</exception>
         private int _y;
         public int Y
         {
@@ -27,19 +28,17 @@ namespace seaBattle
             }
         }
 
-        /// <summary>конструкторы</summary>
+        /// <summary>Конструкторы.</summary>
         public Pointer(int x, int y)
         {
-            if (x < 0 || y < 0) throw new ArgumentException();
-            _x = x;
-            _y = y;
+            X = x;
+            Y = y;
         }
 
         public Pointer(Pointer p)
         {
-            if (p._x < 0 || p._y < 0) throw new ArgumentException();
-            _x = p._x;
-            _y = p._y;
+            X = p._x;
+            Y = p._y;
         }
     }
 }

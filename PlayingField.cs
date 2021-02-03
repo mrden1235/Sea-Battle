@@ -5,14 +5,17 @@ namespace seaBattle
 {
     public class PlayingField
     {
-        /// <summary>массив кораблей</summary>
+        /// <summary>Массив кораблей.</summary>
         private readonly Ship[] _ships;
-        /// <summary>игровое поле</summary>
+        /// <summary>Игровое поле.</summary>
         private readonly char[,] _field;
-
-        private readonly int _n;
-        private readonly int _m;
+        /// <summary>Размеры игрового поля.</summary>
+        private static int _n;
+        private static int _m;
         /// <summary>конструктор</summary>
+        /// <param name="n">Количество строк на игровом поле.</param>
+        /// <param name="m">Количество столбцов на игровом поле.</param>
+        /// <param name="s">Массив палуб.</param>
         public PlayingField(int n, int m, IReadOnlyList<int> s)
         {
             _n = n;
@@ -21,7 +24,7 @@ namespace seaBattle
             _ships = new Ship[s.Count];
             for (var i = 0; i < s.Count; ++i) _ships[i] = new Ship(s[i]);
         }
-        /// <summary> вывод игрового поля</summary>
+        /// <summary>Вывод игрового поля.</summary>
         public void PrintField()
         {
             for (var i = 0; i < _n; i++)
@@ -32,7 +35,7 @@ namespace seaBattle
             }
         }
 
-        /// <summary>случайное распределение кораблей</summary>
+        /// <summary>Случайное распределение кораблей.</summary>
         public void StartRandomField(Random random)
         {
             var field = new char[_n + 2, _m + 2]; // создание увеличенного поля для удобства распределения кораблей
@@ -41,20 +44,23 @@ namespace seaBattle
             for (var j = 0; j < _m + 2; j++)
                 field[i, j] = '.';
 
-            foreach (var t in _ships) ShipPlacement(field, t, random); // распределение кораблей
+            foreach (var s in _ships) ShipPlacement(field, s, random); // распределение кораблей
 
             for (var i = 0; i < _n; ++i) // запись в игровое поле
             for (var j = 0; j < _m; ++j)
                 _field[i, j] = field[i + 1, j + 1];
         }
 
-        /// <summary>случайное распределение одного корабля</summary>
+        /// <summary>Случайное распределение одного корабля.</summary>
+        /// <param name="field">Увеличенное поле.</param>
+        /// <param name="s">Корабль, который размещается на поле.</param>
+        /// <param name="random">Объект класса Random.</param>
         private static void ShipPlacement(char[,] field, Ship s, Random random)
         {
             var shipPlaces = new List<ShipPlace>(); // список возможных мест для размещения корабля
 
-            for (var i = 0; i < 10; ++i)
-            for (var j = 0; j < 10; ++j)
+            for (var i = 0; i < _n; ++i)
+            for (var j = 0; j < _m; ++j)
             {
                 for (var y = i; y < i + 3 && j < 11 - s.Decks; ++y) // нахождение возможных мест по вертикали
                 {
@@ -106,62 +112,64 @@ namespace seaBattle
             if (shipPlaces.Count == 0) throw new Exception("Для корабля не нашлось подходящего места");
             shipPlaces.Clear();
         }
-        /// <summary>случайный выстрел</summary>
+        /// <summary>Случайный выстрел.</summary>
         public void RandomShot(Random random)
         {
             var pointers = new List<Pointer>();
-            for (var i = 0; i < 10; ++i)
-            for (var j = 0; j < 10; ++j)
+            for (var i = 0; i < _n; ++i)
+            for (var j = 0; j < _m; ++j)
                 if (_field[i, j] != 'x')
                     pointers.Add(new Pointer(j, i));
             var pointer = pointers[random.Next(0, pointers.Count - 1)];
             _field[pointer.Y, pointer.X] = 'x';
             pointers.Clear();
         }
-        /// <summary>проверка на убитого коробля в точке</summary>
+        /// <summary>Проверка на убитого коробля в точке.</summary>
+        /// /// <param name="x">Номер столбца.</param>
+        /// <param name="y">Номер строки.</param>
         private bool DeathShip(int x, int y)
         {
             if (x < 0 || y < 0) return false;
-            foreach (var t in _ships)
+            foreach (var s in _ships)
             {
-                if (x == t.ShipPlace.FirstPointer.X &&  // проверка по вертикали
-                    x == t.ShipPlace.LastPointer.X &&
-                    y >= t.ShipPlace.FirstPointer.Y &&
-                    y <= t.ShipPlace.LastPointer.Y)
+                if (x == s.ShipPlace.FirstPointer.X &&  // проверка по вертикали
+                    x == s.ShipPlace.LastPointer.X &&
+                    y >= s.ShipPlace.FirstPointer.Y &&
+                    y <= s.ShipPlace.LastPointer.Y)
                 {
                     for (var j = 0;
-                        j < t.Decks && _field[t.ShipPlace.FirstPointer.Y + j, x] == 'x';
+                        j < s.Decks && _field[s.ShipPlace.FirstPointer.Y + j, x] == 'x';
                         ++j)
-                        if (j == t.Decks - 1)
+                        if (j == s.Decks - 1)
                             return true;
                 }
 
-                if (y != t.ShipPlace.FirstPointer.Y ||  // проверка по горизонтали
-                    y != t.ShipPlace.LastPointer.Y ||
-                    x < t.ShipPlace.FirstPointer.X ||
-                    x > t.ShipPlace.LastPointer.X) continue;
+                if (y != s.ShipPlace.FirstPointer.Y ||  // проверка по горизонтали
+                    y != s.ShipPlace.LastPointer.Y ||
+                    x < s.ShipPlace.FirstPointer.X ||
+                    x > s.ShipPlace.LastPointer.X) continue;
                 for (var j = 0;
-                    j < t.Decks && _field[y, t.ShipPlace.FirstPointer.X + j] == 'x';
+                    j < s.Decks && _field[y, s.ShipPlace.FirstPointer.X + j] == 'x';
                     ++j)
-                    if (j == t.Decks - 1)
+                    if (j == s.Decks - 1)
                         return true;
             }
 
             return false;
         }
-        /// <summary>две точки для запоминания предыдущих выстрелов</summary>
+        /// <summary>Две точки для запоминания предыдущих выстрелов.</summary>
         private Pointer _prevHit;
         private Pointer _prevHit2; 
-        /// <summary>направление многопалубного корабля </summary>
+        /// <summary>Направление многопалубного корабля.</summary>
         private char _direction = ' ';
-        /// <summary>случайная стрельба с «добиванием» кораблей</summary>
+        /// <summary>Случайная стрельба с «добиванием» кораблей.</summary>
         public void SmartRandomShot(Random random)
         {
             if (_prevHit == null && _prevHit2 == null) // случайный выстрел
             {
                 var pointers = new List<Pointer>();
-                for (var i = 0; i < 10; ++i)
-                for (var j = 0; j < 10; ++j)
+                for (var i = 0; i < _n; ++i)
+                for (var j = 0; j < _m; ++j)
                     if (_field[i, j] != 'x'
                        && !DeathShip(j - 1, i) 
                        && !DeathShip(j + 1, i) 
@@ -205,7 +213,7 @@ namespace seaBattle
                                     return;
                             }
 
-                        if (_prevHit.X < 9)
+                        if (_prevHit.X < _m - 1)
                             switch (_field[_prevHit.Y, _prevHit.X + 1])
                             {
                                 // выстрел справа от первого попадения
@@ -228,7 +236,7 @@ namespace seaBattle
                                     return;
                             }
 
-                        if (_prevHit.Y < 9)
+                        if (_prevHit.Y < _n - 1)
                             switch (_field[_prevHit.Y + 1, _prevHit.X])
                             {
                                 // выстрел под первым попадением
@@ -286,7 +294,7 @@ namespace seaBattle
 
                         break;
                     case 'x' when _prevHit != null: // выстрелы справа от второго попадания
-                        if (_prevHit.X < 9)
+                        if (_prevHit.X < _m - 1)
                         {
                             switch (_field[_prevHit.Y, _prevHit.X + 1])
                             {
@@ -381,11 +389,11 @@ namespace seaBattle
                     }
                 }
         }
-        /// <summary>проверка кораблей на живучесть</summary>
+        /// <summary>Проверка кораблей на живучесть.</summary>
         public bool Live()
         {
-            for (var i = 0; i < 10; ++i)
-            for (var j = 0; j < 10; ++j)
+            for (var i = 0; i < _n; ++i)
+            for (var j = 0; j < _m; ++j)
                 if (_field[i, j] == '*')
                     return true;
             return false;
